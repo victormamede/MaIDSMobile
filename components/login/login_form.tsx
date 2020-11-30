@@ -1,17 +1,17 @@
 import React from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { ImageProps, View } from 'react-native';
-import Text from '../util/translated_text';
+import { useForm } from 'react-hook-form';
+import { ImageProps } from 'react-native';
 import { useLang } from '../../util/contexts/lang_context';
 import {
   Button,
   Card,
   Icon,
-  Input,
   Spinner,
+  Text,
   StyleService,
   useStyleSheet,
 } from '@ui-kitten/components';
+import useControlledInput from '../util/form/controlled_input';
 
 export type Inputs = {
   username: string;
@@ -29,54 +29,38 @@ export default function LoginForm({ onSubmit, loading, errorMessage }: Props) {
   const { getPhrase } = useLang();
   const styles = useStyleSheet(themedStyles);
 
+  const Input = useControlledInput(control);
+
   const usernameInput = (
-    <Controller
-      control={control}
-      render={({ onChange, onBlur, value }) => (
-        <View>
-          <Input
-            label={getPhrase('Username')}
-            onBlur={onBlur}
-            onChangeText={onChange}
-            accessoryLeft={accountIcon}
-            value={value}
-            editable={!loading}
-            status={errors.username && 'danger'}
-            caption={errors.username && getPhrase('required')}
-          />
-        </View>
-      )}
+    <Input
+      label={getPhrase('Username')}
       name="username"
       rules={{ required: true }}
       defaultValue=""
+      error={errors.username}
+      props={{
+        accessoryLeft: accountIcon,
+        editable: !loading,
+      }}
     />
   );
   const passwordInput = (
-    <Controller
-      control={control}
-      render={({ onChange, onBlur, value }) => (
-        <View>
-          <Input
-            label={getPhrase('Password')}
-            onBlur={onBlur}
-            onChangeText={onChange}
-            accessoryLeft={passwordIcon}
-            value={value}
-            editable={!loading}
-            status={errors.password && 'danger'}
-            caption={errors.password && getPhrase('required')}
-            secureTextEntry
-          />
-        </View>
-      )}
+    <Input
+      label={getPhrase('Password')}
       name="password"
       rules={{ required: true }}
       defaultValue=""
+      error={errors.password}
+      props={{
+        accessoryLeft: passwordIcon,
+        editable: !loading,
+        secureTextEntry: true,
+      }}
     />
   );
 
   return (
-    <Card>
+    <Card disabled={true}>
       {usernameInput}
       {passwordInput}
 

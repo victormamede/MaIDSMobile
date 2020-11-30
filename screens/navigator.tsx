@@ -3,10 +3,10 @@ import { UserProvider, UserContextProps } from '../util/contexts/user_context';
 import { createStackNavigator } from '@react-navigation/stack';
 import Login from './login';
 import Settings from './settings';
-import ScanScreen from './scan';
+import Scan from './scan';
 import More from './more';
 import ApiFetcher from '../util/api/api_fetcher';
-import { useLang } from '../util/contexts/lang_context';
+import UpdatePassword from './update_password';
 import { UserData } from '../util/api/user/user';
 
 const Stack = createStackNavigator();
@@ -16,7 +16,6 @@ export default function Navigator() {
     user: UserData;
     token: string;
   } | null>(null);
-  const { getPhrase } = useLang();
 
   const userValues: UserContextProps = useMemo(
     () => ({
@@ -34,32 +33,17 @@ export default function Navigator() {
 
   return (
     <UserProvider value={userValues}>
-      <Stack.Navigator>
+      <Stack.Navigator headerMode="none">
         {user == null ? (
           <>
-            <Stack.Screen
-              name="Login"
-              component={Login}
-              options={{ headerShown: false, title: getPhrase('Login') }}
-            />
-            <Stack.Screen
-              name="Settings"
-              component={Settings}
-              options={{ title: getPhrase('Settings') }}
-            />
+            <Stack.Screen name="Login" component={Login} />
+            <Stack.Screen name="UpdatePassword" component={UpdatePassword} />
+            <Stack.Screen name="Settings" component={Settings} />
           </>
         ) : (
           <>
-            <Stack.Screen
-              name="Scan"
-              component={ScanScreen}
-              options={{ headerShown: false, title: getPhrase('More') }}
-            />
-            <Stack.Screen
-              name="More"
-              component={More}
-              options={{ headerShown: false, title: getPhrase('More') }}
-            />
+            <Stack.Screen name="Scan" component={Scan} />
+            <Stack.Screen name="More" component={More} />
           </>
         )}
       </Stack.Navigator>
@@ -75,4 +59,5 @@ export type WithUserStackParams = {
 export type NoUserStackParams = {
   Login: undefined;
   Settings: undefined;
+  UpdatePassword: { token: string };
 };

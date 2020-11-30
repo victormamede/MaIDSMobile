@@ -4,16 +4,15 @@ import getUserData from '../util/api/auth/get_user_data';
 import { useUser } from '../util/contexts/user_context';
 import { NoUserStackParams } from './navigator';
 import { ImageProps, StyleSheet, View } from 'react-native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { Button, Icon, Layout } from '@ui-kitten/components';
+import { StackScreenProps } from '@react-navigation/stack';
+import { Button, Icon } from '@ui-kitten/components';
 import { useLang } from '../util/contexts/lang_context';
 import { UserData } from '../util/api/user/user';
+import Layout from '../components/layout';
 
-type Props = {
-  navigation: StackNavigationProp<NoUserStackParams, 'Login'>;
-};
-
-export default function Login({ navigation }: Props) {
+export default function Login({
+  navigation,
+}: StackScreenProps<NoUserStackParams, 'Login'>) {
   const userContext = useUser();
   const { getPhrase } = useLang();
 
@@ -26,10 +25,13 @@ export default function Login({ navigation }: Props) {
   };
 
   return (
-    <Layout style={styles.container}>
-      <View style={styles.contentContainer}>
+    <Layout>
+      <View style={styles.container}>
         <LoginScreen
           userUpdated={(token) => onLogin(token, userContext.logIn)}
+          updatePassword={(token) =>
+            navigation.navigate('UpdatePassword', { token: token })
+          }
         />
       </View>
       <View style={styles.footer}>
@@ -50,9 +52,6 @@ const CogIcon = (props?: Partial<ImageProps>) => (
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-  },
-  contentContainer: {
     flex: 1,
     padding: 30,
     justifyContent: 'center',

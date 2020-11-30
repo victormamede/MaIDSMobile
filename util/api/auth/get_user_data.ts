@@ -8,7 +8,7 @@ export default async function getUserData(
   const fetcher = new ApiFetcher(token);
 
   const resp = await fetcher.get<ResponseBody>('/auth');
-  const userData = resp.data;
+  const userData = resp.data as ResponseBody;
 
   return {
     id: userData.id,

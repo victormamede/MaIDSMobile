@@ -3,7 +3,7 @@ import React from 'react';
 
 //Design
 import * as eva from '@eva-design/eva';
-import theme from './theme.json';
+import { theme } from './theme';
 import {
   ApplicationProvider as UIKittenProvider,
   IconRegistry,

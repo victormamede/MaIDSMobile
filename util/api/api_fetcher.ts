@@ -1,12 +1,18 @@
 import timeout from '../helper/timeout';
 import Config from 'react-native-config';
 
-type Response<T> = {
+export type Response<T> = {
   status: number;
-  data: T;
+  data: T | ErrorMessage;
+};
+
+export type ErrorMessage = {
+  message: any;
 };
 
 const DEFAULT_TIMEOUT = 6000;
+
+console.log(`API address: ${Config.API_URL}`);
 
 export default class ApiFetcher {
   private headers: { [key: string]: string };
@@ -51,9 +57,34 @@ export default class ApiFetcher {
     };
   }
 
+  public async put<T>(
+    url: string,
+    body: object,
+    fetchTimeout?: number,
+  ): Promise<Response<T>> {
+    const [response, data] = await this.fetch(url, 'PUT', fetchTimeout, body);
+
+    return {
+      status: response.status,
+      data: data,
+    };
+  }
+
+  public async delete<T>(
+    url: string,
+    fetchTimeout?: number,
+  ): Promise<Response<T>> {
+    const [response, data] = await this.fetch(url, 'DELETE', fetchTimeout);
+
+    return {
+      status: response.status,
+      data: data,
+    };
+  }
+
   private async fetch(
     url: string,
-    method: 'GET' | 'POST',
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
     fetchTimeout?: number,
     body?: object,
   ) {

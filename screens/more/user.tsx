@@ -1,51 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { StackScreenProps } from '@react-navigation/stack';
 import { MoreStackParams } from '../more';
-import { useUser } from '../../util/contexts/user_context';
-import { Layout, Spinner, Text } from '@ui-kitten/components';
-import UserFetcher, { UserData } from '../../util/api/user/user';
-import UserForm from '../../components/user/user_form';
-import LoadingScreen from '../../components/util/loading_screen';
+import UserScreen from '../../components/user/user_screen';
+import Layout from '../../components/layout';
+import { useLang } from '../../util/contexts/lang_context';
 
-export default function UserScreen({
+export default function MoreUser({
   navigation,
   route,
 }: StackScreenProps<MoreStackParams, 'User'>) {
-  const { id } = route.params;
-  const [user, userHandler] = useState<UserData | null>(null);
-  const [loading, loadingHandler] = useState(true);
-  const currentUser = useUser();
-
-  useEffect(() => {
-    const getUserData = async () => {
-      try {
-        const fetcher = new UserFetcher(currentUser.fetcher);
-        const data = await fetcher.userData(id);
-
-        userHandler(data);
-      } catch (e) {
-        userHandler(null);
-      } finally {
-        loadingHandler(false);
-      }
-    };
-
-    loadingHandler(true);
-
-    if (id > 0) {
-      getUserData();
-    } else {
-      loadingHandler(false);
-    }
-  }, [currentUser.fetcher, id]);
-
-  if (loading) {
-    return <LoadingScreen />;
-  }
+  const { id, onChanged } = route.params;
+  const { getPhrase } = useLang();
 
   return (
-    <Layout>
-      <UserForm data={user || undefined} />
+    <Layout title={getPhrase('User')} goBack={navigation.goBack}>
+      <UserScreen
+        id={id}
+        onSuccess={() => {
+          navigation.pop();
+          onChanged && onChanged();
+        }}
+      />
     </Layout>
   );
 }

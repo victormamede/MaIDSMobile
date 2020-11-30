@@ -4,42 +4,27 @@ import {
   StackScreenProps,
 } from '@react-navigation/stack';
 import { WithUserStackParams } from './navigator';
-import MoreScreen from './more/default';
-import UsersScreen from './more/users';
-import UserScreen from './more/user';
-import { useLang } from '../util/contexts/lang_context';
+import MoreDefault from './more/default';
+import MoreUserList from './more/user_list';
+import MoreUser from './more/user';
 
 const Stack = createStackNavigator();
 
 export type MoreStackParams = {
   Default: undefined;
   Users: undefined;
-  User: { id: number };
+  User: { id: number; onChanged?: () => void };
 };
 
 export default function More({}: StackScreenProps<
   WithUserStackParams,
   'More'
 >) {
-  const { getPhrase } = useLang();
-
   return (
-    <Stack.Navigator>
-      <Stack.Screen
-        options={{ title: getPhrase('More') }}
-        name="Default"
-        component={MoreScreen}
-      />
-      <Stack.Screen
-        options={{ title: getPhrase('Users') }}
-        name="Users"
-        component={UsersScreen}
-      />
-      <Stack.Screen
-        options={{ title: getPhrase('User') }}
-        name="User"
-        component={UserScreen}
-      />
+    <Stack.Navigator headerMode="none">
+      <Stack.Screen name="Default" component={MoreDefault} />
+      <Stack.Screen name="Users" component={MoreUserList} />
+      <Stack.Screen name="User" component={MoreUser} />
     </Stack.Navigator>
   );
 }
