@@ -9,18 +9,12 @@ export default function MoreUser({
   navigation,
   route,
 }: StackScreenProps<MoreStackParams, 'User'>) {
-  const { id, onChanged } = route.params;
+  const { id } = route.params;
   const { getPhrase } = useLang();
 
   return (
     <Layout title={getPhrase('User')} goBack={navigation.goBack}>
-      <UserScreen
-        id={id}
-        onSuccess={() => {
-          navigation.pop();
-          onChanged && onChanged();
-        }}
-      />
+      <UserScreen id={id} onSuccess={navigation.pop} />
     </Layout>
   );
 }

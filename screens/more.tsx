@@ -13,7 +13,7 @@ const Stack = createStackNavigator();
 export type MoreStackParams = {
   Default: undefined;
   Users: undefined;
-  User: { id: number; onChanged?: () => void };
+  User: { id: number };
 };
 
 export default function More({}: StackScreenProps<

@@ -33,5 +33,8 @@
   "Looks like you haven't chosen your password yet, please update it before proceeding": "Parece que você ainda não escolheu sua senha, por favor atualize antes de continuar",
   "Cancel": "Cancelar",
   "Password is too short": "Senha muito curta",
-  "Passwords don't match": "Senhas não conferem"
+  "Passwords don't match": "Senhas não conferem",
+  "Brand": "Marca",
+  "Model": "Modelo",
+  "Serial number": "Número de série"
 }

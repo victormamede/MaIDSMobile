@@ -10,6 +10,15 @@ export type UserData = {
   registrationNumber: number;
 };
 
+type Body = {
+  id: number;
+  username: string;
+  real_name: string;
+  registration_number: number;
+  roles: Role[];
+  email: string;
+};
+
 export default class UserFetcher {
   constructor(private fetcher: ApiFetcher) {}
 
@@ -83,12 +92,3 @@ const userDataToBody: (userData: Partial<UserData>) => Partial<Body> = (
   roles: userData.roles && [...userData.roles, 'NONE'],
   email: userData.email,
 });
-
-type Body = {
-  id: number;
-  username: string;
-  real_name: string;
-  registration_number: number;
-  roles: Role[];
-  email: string;
-};
