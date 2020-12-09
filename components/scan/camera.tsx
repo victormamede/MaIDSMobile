@@ -1,14 +1,64 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ImageProps, StyleSheet, View, ViewStyle } from 'react-native';
 import { Button, Icon } from '@ui-kitten/components';
-import { RNCamera } from 'react-native-camera';
+import {
+  Barcode,
+  GoogleVisionBarcodesDetectedEvent,
+  RNCamera,
+} from 'react-native-camera';
+import EquipmentFetcher, {
+  EquipmentData,
+} from '../../util/api/equipment/equipment';
+import { useUser } from '../../util/contexts/user_context';
+import Locator, { QRCodePosition } from './locator';
 
 type Props = {
   style?: ViewStyle;
+  onQRCodeRead?: (equipment: EquipmentData) => void;
 };
-export default function ScanCamera({ style }: Props) {
+
+export default function ScanCamera({ onQRCodeRead, style }: Props) {
   const [flash, flashHandler] = useState(false);
+  const [locator, locatorHandler] = useState<QRCodePosition | null>(null);
   const [frontCamera, cameraHandler] = useState(false);
+  const currentUser = useUser();
+
+  const equipmentFetcher = useMemo(
+    () => new EquipmentFetcher(currentUser.fetcher),
+    [currentUser.fetcher],
+  );
+
+  const checkBarcode = async (barcode: Barcode) => {
+    const result = +barcode.data;
+
+    if (isNaN(result)) {
+      return;
+    }
+
+    locatorHandler(barcode.bounds);
+
+    let equipment: EquipmentData | undefined;
+    try {
+      equipment = await equipmentFetcher.getEquipmentData(result);
+    } catch (e) {}
+
+    locatorHandler(null);
+    return equipment;
+  };
+
+  const onQRCode = async (event: GoogleVisionBarcodesDetectedEvent) => {
+    if (onQRCodeRead == null) {
+      return;
+    }
+
+    event.barcodes.forEach(async (barcode) => {
+      const value = await checkBarcode(barcode);
+
+      if (value) {
+        onQRCodeRead(value);
+      }
+    });
+  };
 
   return (
     <View style={style}>
@@ -24,8 +74,10 @@ export default function ScanCamera({ style }: Props) {
             : RNCamera.Constants.FlashMode.off
         }
         captureAudio={false}
-        style={styles.camera}
-      />
+        onGoogleVisionBarcodesDetected={onQRCode}
+        style={styles.camera}>
+        <Locator position={locator || undefined} />
+      </RNCamera>
       <View style={styles.spacer} />
       <View style={styles.buttons}>
         <Button
@@ -33,12 +85,14 @@ export default function ScanCamera({ style }: Props) {
           onPress={() => flashHandler(!flash)}
           appearance="ghost"
           size="large"
+          status="basic"
         />
         <Button
           accessoryLeft={flip}
           onPress={() => cameraHandler(!frontCamera)}
           appearance="ghost"
           size="large"
+          status="basic"
         />
       </View>
     </View>
@@ -70,5 +124,6 @@ const styles = StyleSheet.create({
     margin: 10,
     alignSelf: 'flex-end',
     flexDirection: 'row',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
 });

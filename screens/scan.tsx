@@ -21,7 +21,6 @@ export default function Scan({
         }
       />
       <Button
-        style={styles.button}
         onPress={() => navigation.navigate('More')}
         size="large"
         appearance="ghost">
@@ -34,9 +33,5 @@ export default function Scan({
 const styles = StyleSheet.create({
   scan: {
     flex: 1,
-  },
-  button: {
-    position: 'absolute',
-    bottom: 0,
   },
 });

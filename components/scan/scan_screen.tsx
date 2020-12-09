@@ -12,7 +12,7 @@ type Props = {
 export default function ScanScreen({ onEquipmentSelected, style }: Props) {
   return (
     <View style={style}>
-      <ScanCamera style={styles.camera} />
+      <ScanCamera style={styles.camera} onQRCodeRead={onEquipmentSelected} />
       <SearchBar
         onEquipmentSelected={onEquipmentSelected}
         style={styles.input}

@@ -38,9 +38,13 @@ export default class EquipmentFetcher {
   }
 
   public async getEquipmentData(id: number): Promise<EquipmentData> {
-    const { data } = await this.fetcher.get<Body>(`/equipment/${id}`);
+    const { status, data } = await this.fetcher.get<Body>(`/equipment/${id}`);
 
-    return bodyToEquipmentData(data as Body);
+    if (status === 200) {
+      return bodyToEquipmentData(data as Body);
+    } else {
+      throw new Error('Equipment not found');
+    }
   }
 }
 
