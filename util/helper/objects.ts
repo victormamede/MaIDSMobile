@@ -9,3 +9,17 @@ export function differentEntries<T>(base: T, compared: T): Partial<T> {
 
   return changed;
 }
+
+export function objectToUrlEncoded(data: object) {
+  const entries = [];
+
+  for (let key of Object.keys(data)) {
+    if ((data as any)[key] == null) {
+      continue;
+    }
+
+    entries.push(`${key}=${(data as any)[key].toString()}`);
+  }
+
+  return '?' + entries.join('&');
+}

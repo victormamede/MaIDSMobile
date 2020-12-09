@@ -1,4 +1,5 @@
 import ApiFetcher from '../api_fetcher';
+import { objectToUrlEncoded } from '../../helper/objects';
 
 export type EquipmentData = {
   id: number;
@@ -19,8 +20,17 @@ export type Body = {
 export default class EquipmentFetcher {
   constructor(private fetcher: ApiFetcher) {}
 
-  public async getList(): Promise<EquipmentData[]> {
-    const { data } = await this.fetcher.get<Body[]>('/equipment');
+  public async getList(
+    filters?: Partial<EquipmentData>,
+  ): Promise<EquipmentData[]> {
+    let filterString = '';
+    if (filters != null) {
+      filterString = objectToUrlEncoded(filters);
+    }
+
+    const { data } = await this.fetcher.get<Body[]>(
+      '/equipment' + filterString,
+    );
 
     return (data as Body[])
       .map(bodyToEquipmentData)
