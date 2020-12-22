@@ -1,83 +1,76 @@
-import React, { useMemo, useState } from 'react';
-import { ImageProps, StyleSheet, View, ViewStyle } from 'react-native';
-import { Button, Icon } from '@ui-kitten/components';
+import React, { useState } from 'react';
+import { ImageProps, View, ViewStyle } from 'react-native';
 import {
-  Barcode,
-  GoogleVisionBarcodesDetectedEvent,
-  RNCamera,
-} from 'react-native-camera';
-import EquipmentFetcher, {
-  EquipmentData,
-} from '../../util/api/equipment/equipment';
-import { useUser } from '../../util/contexts/user_context';
-import Locator, { QRCodePosition } from './locator';
+  Button,
+  Icon,
+  Spinner,
+  StyleService,
+  useStyleSheet,
+} from '@ui-kitten/components';
+import { BarCodeReadEvent, RNCamera } from 'react-native-camera';
+import QRCodeParser from '../../util/api/scan/qr_code_parser';
 
 type Props = {
   style?: ViewStyle;
-  onQRCodeRead?: (equipment: EquipmentData) => void;
+  onQRCodeRead?: (id: number) => void;
+  active?: boolean;
 };
 
-export default function ScanCamera({ onQRCodeRead, style }: Props) {
+const qrParser = new QRCodeParser();
+
+export default function ScanCamera({ onQRCodeRead, style, active }: Props) {
   const [flash, flashHandler] = useState(false);
-  const [locator, locatorHandler] = useState<QRCodePosition | null>(null);
   const [frontCamera, cameraHandler] = useState(false);
-  const currentUser = useUser();
+  const [isReading, isReadingHandler] = useState(false);
+  const styles = useStyleSheet(themedStyles);
 
-  const equipmentFetcher = useMemo(
-    () => new EquipmentFetcher(currentUser.fetcher),
-    [currentUser.fetcher],
-  );
-
-  const checkBarcode = async (barcode: Barcode) => {
-    const result = +barcode.data;
-
-    if (isNaN(result)) {
-      return;
-    }
-
-    locatorHandler(barcode.bounds);
-
-    let equipment: EquipmentData | undefined;
-    try {
-      equipment = await equipmentFetcher.getEquipmentData(result);
-    } catch (e) {}
-
-    locatorHandler(null);
-    return equipment;
-  };
-
-  const onQRCode = async (event: GoogleVisionBarcodesDetectedEvent) => {
+  const onQRCode = async (event: BarCodeReadEvent) => {
     if (onQRCodeRead == null) {
       return;
     }
+    if (isReading) {
+      return;
+    }
 
-    event.barcodes.forEach(async (barcode) => {
-      const value = await checkBarcode(barcode);
+    isReadingHandler(true);
+    const equipment = await qrParser.onEquipmentBarCode(event);
 
-      if (value) {
-        onQRCodeRead(value);
-      }
-    });
+    if (equipment) {
+      onQRCodeRead(equipment);
+    }
+
+    isReadingHandler(false);
   };
+
+  const camera = (
+    <RNCamera
+      type={
+        frontCamera
+          ? RNCamera.Constants.Type.front
+          : RNCamera.Constants.Type.back
+      }
+      flashMode={
+        flash
+          ? RNCamera.Constants.FlashMode.torch
+          : RNCamera.Constants.FlashMode.off
+      }
+      captureAudio={false}
+      onBarCodeRead={onQRCode}
+      barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
+      style={styles.camera}>
+      <View style={styles.rectangleContainer}>
+        {isReading ? (
+          <Spinner size="giant" />
+        ) : (
+          <View style={styles.rectangle} />
+        )}
+      </View>
+    </RNCamera>
+  );
 
   return (
     <View style={style}>
-      <RNCamera
-        type={
-          frontCamera
-            ? RNCamera.Constants.Type.front
-            : RNCamera.Constants.Type.back
-        }
-        flashMode={
-          flash
-            ? RNCamera.Constants.FlashMode.torch
-            : RNCamera.Constants.FlashMode.off
-        }
-        captureAudio={false}
-        onGoogleVisionBarcodesDetected={onQRCode}
-        style={styles.camera}>
-        <Locator position={locator || undefined} />
-      </RNCamera>
+      {active && camera}
       <View style={styles.spacer} />
       <View style={styles.buttons}>
         <Button
@@ -109,7 +102,7 @@ const flip = (props?: Partial<ImageProps>) => (
   <Icon name="flip-outline" {...props} />
 );
 
-const styles = StyleSheet.create({
+const themedStyles = StyleService.create({
   camera: {
     position: 'absolute',
     left: 0,
@@ -121,9 +114,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   buttons: {
-    margin: 10,
     alignSelf: 'flex-end',
     flexDirection: 'row',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  rectangleContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+  },
+  rectangle: {
+    height: 250,
+    width: 250,
+    borderWidth: 6,
+    backgroundColor: 'transparent',
+    borderColor: 'color-success-default',
+    borderRadius: 32,
   },
 });

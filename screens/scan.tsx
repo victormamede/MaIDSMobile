@@ -1,37 +1,47 @@
 import React from 'react';
 import { WithUserStackParams } from './navigator';
-import { Button } from '@ui-kitten/components';
+import { Button, Icon } from '@ui-kitten/components';
 import { StackScreenProps } from '@react-navigation/stack';
-import { useLang } from '../util/contexts/lang_context';
 import Layout from '../components/layout';
 import ScanScreen from '../components/scan/scan_screen';
-import { StyleSheet } from 'react-native';
+import { ImageProps, StyleSheet } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 
 export default function Scan({
   navigation,
 }: StackScreenProps<WithUserStackParams, 'Scan'>) {
-  const { getPhrase } = useLang();
+  const focused = useIsFocused();
 
   return (
     <Layout>
       <ScanScreen
+        cameraActive={focused}
         style={styles.scan}
-        onEquipmentSelected={(eq) =>
-          navigation.navigate('Equipment', { id: eq.id })
-        }
+        onEquipmentSelected={(id) => navigation.push('Equipment', { id })}
       />
       <Button
+        style={styles.more}
+        accessoryLeft={moreIcon}
         onPress={() => navigation.navigate('More')}
+        appearance="ghost"
+        status="basic"
         size="large"
-        appearance="ghost">
-        {getPhrase('More')}
-      </Button>
+      />
     </Layout>
   );
 }
 
+const moreIcon = (props?: Partial<ImageProps>) => (
+  <Icon name="more-horizontal-outline" {...props} />
+);
+
 const styles = StyleSheet.create({
   scan: {
     flex: 1,
+  },
+  more: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
   },
 });

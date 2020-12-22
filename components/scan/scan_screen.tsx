@@ -1,20 +1,30 @@
 import React from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
-import { EquipmentData } from '../../util/api/equipment/equipment';
 import ScanCamera from './camera';
 import SearchBar from './search_bar';
 
 type Props = {
-  onEquipmentSelected?: (equipment: EquipmentData) => void;
+  onEquipmentSelected?: (id: number) => void;
   style?: ViewStyle;
+  cameraActive?: boolean;
 };
 
-export default function ScanScreen({ onEquipmentSelected, style }: Props) {
+export default function ScanScreen({
+  onEquipmentSelected,
+  style,
+  cameraActive,
+}: Props) {
   return (
     <View style={style}>
-      <ScanCamera style={styles.camera} onQRCodeRead={onEquipmentSelected} />
+      <ScanCamera
+        style={styles.camera}
+        active={cameraActive}
+        onQRCodeRead={onEquipmentSelected}
+      />
       <SearchBar
-        onEquipmentSelected={onEquipmentSelected}
+        onEquipmentSelected={(eq) =>
+          onEquipmentSelected && onEquipmentSelected(eq.id)
+        }
         style={styles.input}
       />
       <View style={styles.spacer} />
