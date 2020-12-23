@@ -31,7 +31,11 @@ export default class UserFetcher {
   }
 
   public async getUserData(id: number): Promise<UserData> {
-    const { data } = await this.fetcher.get<Body>(`/user/${id}`);
+    const { status, data } = await this.fetcher.get<Body>(`/user/${id}`);
+
+    if (status !== 200) {
+      throw new Error('User ID not valid');
+    }
 
     return bodyToUserData(data as Body);
   }

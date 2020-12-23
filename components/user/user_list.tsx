@@ -1,10 +1,4 @@
-import React, {
-  forwardRef,
-  Ref,
-  useEffect,
-  useImperativeHandle,
-  useState,
-} from 'react';
+import React, { forwardRef, Ref, useImperativeHandle, useState } from 'react';
 import { ImageProps, ListRenderItemInfo, StyleSheet, View } from 'react-native';
 import { Divider, Icon, List, ListItem } from '@ui-kitten/components';
 import { useUser } from '../../util/contexts/user_context';
@@ -33,10 +27,6 @@ const UserList = forwardRef(
       usersHandler(data);
       loadingHandler(false);
     }, [currentUser]);
-
-    useEffect(() => {
-      getUsers();
-    }, [getUsers]);
 
     const renderItem = ({ item, index }: ListRenderItemInfo<UserData>) => {
       const Avatar = (props?: Partial<ImageProps>) => (

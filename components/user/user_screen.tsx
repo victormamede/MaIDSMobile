@@ -5,6 +5,7 @@ import UserForm from './user_form';
 import { differentEntries } from '../../util/helper/objects';
 import LoadingScreen from '../util/loading_screen';
 import ConfirmationScreen from './util/confirmation_screen';
+import NotFoundScreen from './not_found_screen';
 
 type Props = {
   id: number;
@@ -13,17 +14,19 @@ type Props = {
 
 export default function UserScreen({ id, onSuccess }: Props) {
   const [user, userHandler] = useState<UserData | null>(null);
+  const [userFound, userFoundHandler] = useState(false);
   const [confirmDelete, confirmDeleteHandler] = useState(false);
   const [starting, startHandler] = useState(true);
   const [loading, loadingHandler] = useState(false);
-  const [error, errorHandler] = useState(null);
+  const [error, errorHandler] = useState<string | null>(null);
   const currentUser = useUser();
 
   useEffect(() => {
     const getUserData = async () => {
-      if (!(id > 0)) {
+      if (id === 0) {
         userHandler(null);
         startHandler(false);
+        userFoundHandler(true);
         return;
       }
 
@@ -32,8 +35,10 @@ export default function UserScreen({ id, onSuccess }: Props) {
         const data = await fetcher.getUserData(id);
 
         userHandler(data);
+        userFoundHandler(true);
       } catch (e) {
         userHandler(null);
+        userFoundHandler(false);
       } finally {
         startHandler(false);
       }
@@ -45,6 +50,9 @@ export default function UserScreen({ id, onSuccess }: Props) {
 
   if (starting) {
     return <LoadingScreen />;
+  }
+  if (!userFound) {
+    return <NotFoundScreen />;
   }
 
   const updateUser = async (props: UserData) => {
