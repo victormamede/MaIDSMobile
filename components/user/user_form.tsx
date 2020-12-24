@@ -3,7 +3,6 @@ import { useForm, Controller } from 'react-hook-form';
 import { useLang } from '../../util/contexts/lang_context';
 import {
   Button,
-  Card,
   Icon,
   StyleService,
   Text,
@@ -12,7 +11,7 @@ import {
 import { UserData } from '../../util/api/user/user';
 import RolesList from './roles/roles_list';
 import useControlledInput from '../util/form/controlled_input';
-import { ImageProps, View } from 'react-native';
+import { ImageProps, ScrollView, View, ViewStyle } from 'react-native';
 
 type Props = {
   data?: UserData;
@@ -20,9 +19,11 @@ type Props = {
   onDelete?: () => void | Promise<void>;
   errorMessage?: string;
   loading?: boolean;
+  style?: ViewStyle;
 };
 
 export default function UserForm({
+  style,
   onSubmit,
   onDelete,
   data,
@@ -41,72 +42,74 @@ export default function UserForm({
   const Input = useControlledInput(control);
 
   return (
-    <Card disabled={true}>
-      <View style={styles.buttonContainer}>
-        <Input
-          label={getPhrase('Username')}
-          name="username"
-          defaultValue={data?.username || ''}
-          rules={{ required: true }}
-          error={errors.username}
-          props={{ disabled: loading, style: styles.input }}
-        />
-        <Button
-          appearance="ghost"
-          status="danger"
-          style={styles.deleteButton}
-          accessoryLeft={DeleteIcon}
-          disabled={onDelete == null}
-          onPress={onDelete}
-        />
-      </View>
-      <Input
-        label={getPhrase('Real name')}
-        name="realName"
-        defaultValue={data?.realName || ''}
-        error={errors.realName}
-        props={{ disabled: loading }}
-      />
-      <Input
-        label={getPhrase('Registration number')}
-        name="registrationNumber"
-        defaultValue={data?.registrationNumber || 0}
-        error={errors.registrationNumber}
-        props={{ disabled: loading }}
-        isNumeric
-      />
-      <Input
-        label={getPhrase('Email')}
-        name="email"
-        defaultValue={data?.email || ''}
-        error={errors.email}
-        props={{ disabled: loading }}
-      />
-      <Controller
-        control={control}
-        render={({ onChange, value }) => (
-          <RolesList
-            style={styles.roles}
-            onChange={onChange}
-            values={value}
-            disabled={loading}
+    <ScrollView>
+      <View style={style}>
+        <View style={styles.buttonContainer}>
+          <Input
+            label={getPhrase('Username')}
+            name="username"
+            defaultValue={data?.username || ''}
+            rules={{ required: true }}
+            error={errors.username}
+            props={{ disabled: loading, style: styles.input }}
           />
+          <Button
+            appearance="ghost"
+            status="danger"
+            style={styles.deleteButton}
+            accessoryLeft={DeleteIcon}
+            disabled={onDelete == null}
+            onPress={onDelete}
+          />
+        </View>
+        <Input
+          label={getPhrase('Real name')}
+          name="realName"
+          defaultValue={data?.realName || ''}
+          error={errors.realName}
+          props={{ disabled: loading }}
+        />
+        <Input
+          label={getPhrase('Registration number')}
+          name="registrationNumber"
+          defaultValue={data?.registrationNumber || 0}
+          error={errors.registrationNumber}
+          props={{ disabled: loading }}
+          isNumeric
+        />
+        <Input
+          label={getPhrase('Email')}
+          name="email"
+          defaultValue={data?.email || ''}
+          error={errors.email}
+          props={{ disabled: loading }}
+        />
+        <Controller
+          control={control}
+          render={({ onChange, value }) => (
+            <RolesList
+              style={styles.roles}
+              onChange={onChange}
+              values={value}
+              disabled={loading}
+            />
+          )}
+          name="roles"
+          defaultValue={data?.roles || []}
+        />
+        {errorMessage == null ? (
+          <></>
+        ) : (
+          <Text style={styles.errorMessage}>{errorMessage}</Text>
         )}
-        name="roles"
-        defaultValue={data?.roles || []}
-      />
-      {errorMessage == null ? (
-        <></>
-      ) : (
-        <Text style={styles.errorMessage}>{errorMessage}</Text>
-      )}
-      <Button
-        style={styles.button}
-        disabled={loading}
-        onPress={onSubmit && handleSubmit(onSubmit)}>
-        {getPhrase('Submit')}
-      </Button>
-    </Card>
+        <Button
+          style={styles.button}
+          disabled={loading}
+          onPress={onSubmit && handleSubmit(onSubmit)}>
+          {getPhrase('Submit')}
+        </Button>
+      </View>
+    </ScrollView>
   );
 }
 

@@ -32,7 +32,7 @@ export default function Navigator() {
   );
 
   useEffect(() => {
-    userValues.fetcher.setOnExpire(() => userHandler(null));
+    userValues.fetcher.setOnLossConnection(() => userHandler(null));
   }, [userValues]);
 
   return (

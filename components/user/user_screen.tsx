@@ -6,6 +6,7 @@ import { differentEntries } from '../../util/helper/objects';
 import LoadingScreen from '../util/loading_screen';
 import ConfirmationScreen from './util/confirmation_screen';
 import NotFoundScreen from './not_found_screen';
+import { StyleSheet } from 'react-native';
 
 type Props = {
   id: number;
@@ -117,6 +118,7 @@ export default function UserScreen({ id, onSuccess }: Props) {
         onReject={() => confirmDeleteHandler(false)}
       />
       <UserForm
+        style={styles.form}
         data={user || undefined}
         onSubmit={user == null ? createUser : updateUser}
         onDelete={user != null ? () => confirmDeleteHandler(true) : undefined}
@@ -126,3 +128,9 @@ export default function UserScreen({ id, onSuccess }: Props) {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  form: {
+    padding: 16,
+  },
+});
