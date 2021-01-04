@@ -22,7 +22,7 @@ export default function MoreDefault({
         <Button
           style={styles.item}
           disabled={!(user.user?.roles.includes('ACCOUNTS') || false)}
-          onPress={() => navigation.push('Users')}>
+          onPress={() => navigation.push('User')}>
           {getPhrase('Users')}
         </Button>
       </View>

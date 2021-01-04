@@ -5,16 +5,9 @@ import {
 } from '@react-navigation/stack';
 import { WithUserStackParams } from './navigator';
 import MoreDefault from './more/default';
-import MoreUserList from './more/user_list';
 import MoreUser from './more/user';
 
 const Stack = createStackNavigator();
-
-export type MoreStackParams = {
-  Default: undefined;
-  Users: undefined;
-  User: { id: number };
-};
 
 export default function More({}: StackScreenProps<
   WithUserStackParams,
@@ -23,8 +16,12 @@ export default function More({}: StackScreenProps<
   return (
     <Stack.Navigator headerMode="none">
       <Stack.Screen name="Default" component={MoreDefault} />
-      <Stack.Screen name="Users" component={MoreUserList} />
       <Stack.Screen name="User" component={MoreUser} />
     </Stack.Navigator>
   );
 }
+
+export type MoreStackParams = {
+  Default: undefined;
+  User: undefined;
+};

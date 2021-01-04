@@ -1,20 +1,23 @@
 import React from 'react';
-import { StackScreenProps } from '@react-navigation/stack';
-import { MoreStackParams } from '../more';
-import UserScreen from '../../components/user/user_screen';
-import Layout from '../../components/layout';
-import { useLang } from '../../util/contexts/lang_context';
+import {
+  createStackNavigator,
+  StackScreenProps,
+} from '@react-navigation/stack';
+import UserList from './users/user_list';
+import User from './users/user';
 
-export default function MoreUser({
-  navigation,
-  route,
-}: StackScreenProps<MoreStackParams, 'User'>) {
-  const { id } = route.params;
-  const { getPhrase } = useLang();
+const Stack = createStackNavigator();
 
+export default function More({}: StackScreenProps<UserStackParams, 'User'>) {
   return (
-    <Layout title={getPhrase('User')} goBack={navigation.goBack}>
-      <UserScreen id={id} onSuccess={navigation.pop} />
-    </Layout>
+    <Stack.Navigator headerMode="none">
+      <Stack.Screen name="Users" component={UserList} />
+      <Stack.Screen name="User" component={User} />
+    </Stack.Navigator>
   );
 }
+
+export type UserStackParams = {
+  User: { id: number };
+  Users: undefined;
+};
