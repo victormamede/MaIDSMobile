@@ -39,6 +39,8 @@
   "Serial number": "Número de série",
   "Search TAG": "Buscar TAG",
   "User List": "Lista de usuários",
+  "Equipment List": "Lista de equipamentos",
   "User": "Usuário",
-  "Find user": "Buscar usuário"
+  "Find user": "Buscar usuário",
+  "Could not create user": "Não foi possível criar o usuário"
 }
