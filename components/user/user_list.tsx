@@ -1,68 +1,55 @@
-import React, { forwardRef, Ref, useImperativeHandle, useState } from 'react';
-import { ImageProps, ListRenderItemInfo, StyleSheet, View } from 'react-native';
-import { Divider, Icon, List, ListItem } from '@ui-kitten/components';
+import React, { useCallback } from 'react';
+import { ImageProps, StyleSheet } from 'react-native';
+import { Icon } from '@ui-kitten/components';
 import { useUser } from '../../util/contexts/user_context';
 import UserFetcher, { UserData } from '../../util/api/user/user';
+import createSearchList from '../util/search_list';
+import { useLang } from '../../util/contexts/lang_context';
 
-export type Props = {
+type Props = {
   onPress?: (userId: number) => void;
 };
 
-export type UserListRefProps = {
-  refresh: () => void;
-};
+export default function UserList({ onPress }: Props) {
+  const currentUser = useUser();
+  const { getPhrase } = useLang();
 
-const UserList = forwardRef(
-  ({ onPress }: Props, ref: Ref<UserListRefProps>) => {
-    const [users, usersHandler] = useState<UserData[]>([]);
-    const [loading, loadingHandler] = useState(true);
-    const currentUser = useUser();
-
-    const getUsers = React.useCallback(async () => {
-      loadingHandler(true);
-
+  const getUsers = useCallback(
+    async (keyword: string) => {
       const fetcher = new UserFetcher(currentUser.fetcher);
+      // TODO: filtering on the backend
+      console.log('called');
       const data = await fetcher.getList();
 
-      usersHandler(data);
-      loadingHandler(false);
-    }, [currentUser]);
+      return data.filter((item) => item.username.includes(keyword));
+    },
+    [currentUser],
+  );
 
-    const renderItem = ({ item, index }: ListRenderItemInfo<UserData>) => {
-      const Avatar = (props?: Partial<ImageProps>) => (
-        <Icon name="person-outline" {...props} />
-      );
-      return (
-        <ListItem
-          accessoryLeft={Avatar}
-          key={index}
-          title={item.username}
-          description={item.realName}
-          onPress={() => onPress && onPress(item.id)}
-        />
-      );
-    };
+  const SearchList = useCallback(
+    createSearchList<UserData>(getUsers, (user) => ({
+      title: user.username,
+      description: user.realName,
+      avatar: Avatar,
+    })),
+    [getUsers],
+  );
 
-    useImperativeHandle(ref, () => ({ refresh: getUsers }));
-
-    return (
-      <View style={styles.container}>
-        <List
-          data={users}
-          ItemSeparatorComponent={Divider}
-          renderItem={renderItem}
-          refreshing={loading}
-          onRefresh={getUsers}
-        />
-      </View>
-    );
-  },
-);
-
-export default UserList;
+  return (
+    <SearchList
+      style={styles.container}
+      onClickItem={(item) => onPress && onPress(item.id)}
+      label={getPhrase('Find user')}
+    />
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
 });
+
+const Avatar = (props?: Partial<ImageProps>) => (
+  <Icon name="person-outline" {...props} />
+);

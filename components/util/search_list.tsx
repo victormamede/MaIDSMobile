@@ -1,38 +1,63 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Divider, Input, List, ListItem } from '@ui-kitten/components';
-import { useLang } from '../../util/contexts/lang_context';
-import { ListRenderItem, View, ViewStyle } from 'react-native';
+import {
+  ImageProps,
+  ListRenderItem,
+  StyleSheet,
+  View,
+  ViewStyle,
+} from 'react-native';
 
 export default function createSearchList<ItemType>(
   fetchFunc: (keyword: string) => Promise<ItemType[]>,
-  translateFunc: (item: ItemType) => { title: string; description: string },
+  translateFunc: (
+    item: ItemType,
+  ) => {
+    title: string;
+    description: string;
+    avatar?: (props?: Partial<ImageProps> | undefined) => JSX.Element;
+  },
 ) {
   type Props = {
     onClickItem?: (item: ItemType) => void;
     minCharacters?: number;
     style?: ViewStyle;
+    label: string;
   };
 
-  return function SearchList({ minCharacters, onClickItem, style }: Props) {
+  const SearchList: React.FunctionComponent<Props> = ({
+    minCharacters,
+    onClickItem,
+    style,
+    label,
+  }: Props) => {
     const [keyword, keywordHandler] = useState('');
+    const [loading, loadHandler] = useState(false);
     const [items, itemHandler] = useState<ItemType[]>([]);
-    const { getPhrase } = useLang();
 
-    const findItems = (value: string) => {
-      keywordHandler(value);
+    const findItems = useCallback(
+      (value: string) => {
+        keywordHandler(value);
 
-      const getData = async () => {
-        if (minCharacters && value.length < minCharacters) {
-          itemHandler([]);
-          return;
-        }
+        const getData = async () => {
+          if (minCharacters && value.length < minCharacters) {
+            itemHandler([]);
+            return;
+          }
+          loadHandler(true);
+          const data = await fetchFunc(value);
+          loadHandler(false);
 
-        const data = await fetchFunc(value);
+          itemHandler(data);
+        };
+        getData();
+      },
+      [minCharacters],
+    );
 
-        itemHandler(data);
-      };
-      getData();
-    };
+    useEffect(() => {
+      findItems('');
+    }, [findItems]);
 
     const renderEquipmentItem: ListRenderItem<ItemType> = ({ item, index }) => {
       const itemDescriptor = translateFunc(item);
@@ -41,6 +66,7 @@ export default function createSearchList<ItemType>(
         <ListItem
           key={index}
           title={itemDescriptor.title}
+          accessoryLeft={itemDescriptor.avatar}
           description={itemDescriptor.description}
           onPress={() => onClickItem && onClickItem(item)}
         />
@@ -50,8 +76,9 @@ export default function createSearchList<ItemType>(
     return (
       <View style={style}>
         <Input
+          style={styles.searchBar}
           size="large"
-          placeholder={getPhrase('Search TAG')}
+          placeholder={label}
           value={keyword}
           onChangeText={findItems}
         />
@@ -59,8 +86,18 @@ export default function createSearchList<ItemType>(
           data={items}
           ItemSeparatorComponent={Divider}
           renderItem={renderEquipmentItem}
+          onRefresh={() => findItems(keyword)}
+          refreshing={loading}
         />
       </View>
     );
   };
+
+  return SearchList;
 }
+
+const styles = StyleSheet.create({
+  searchBar: {
+    margin: 8,
+  },
+});
