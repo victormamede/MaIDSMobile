@@ -1,11 +1,11 @@
-import React, { useMemo, useState } from 'react';
-import { Divider, Input, List, ListItem } from '@ui-kitten/components';
+import React, { useCallback, useMemo } from 'react';
 import EquipmentFetcher, {
   EquipmentData,
 } from '../../util/api/equipment/equipment';
 import { useLang } from '../../util/contexts/lang_context';
 import { useUser } from '../../util/contexts/user_context';
-import { ListRenderItem, View, ViewStyle } from 'react-native';
+import { ViewStyle } from 'react-native';
+import createSearchList from '../util/search_list';
 
 type Props = {
   onEquipmentSelected?: (equipment: EquipmentData) => void;
@@ -13,8 +13,6 @@ type Props = {
 };
 
 export default function SearchBar({ onEquipmentSelected, style }: Props) {
-  const [tag, tagHandler] = useState('');
-  const [equipment, equipmentHandler] = useState<EquipmentData[]>([]);
   const { getPhrase } = useLang();
   const currentUser = useUser();
 
@@ -23,47 +21,26 @@ export default function SearchBar({ onEquipmentSelected, style }: Props) {
     [currentUser.fetcher],
   );
 
-  const findTags = (value: string) => {
-    tagHandler(value);
+  const getData = async (value: string) => {
+    const data = await equipmentFetcher.getList({ tag: value });
 
-    const getData = async () => {
-      if (value.length < 3) {
-        equipmentHandler([]);
-        return;
-      }
-
-      const data = await equipmentFetcher.getList({ tag: value });
-
-      equipmentHandler(data);
-    };
-    getData();
+    return data;
   };
 
-  const renderEquipmentItem: ListRenderItem<EquipmentData> = ({
-    item,
-    index,
-  }) => (
-    <ListItem
-      key={index}
-      title={item.tag}
-      description={item.brand || getPhrase('N/A')}
-      onPress={() => onEquipmentSelected && onEquipmentSelected(item)}
-    />
+  const SearchList = useCallback(
+    createSearchList<EquipmentData>(getData, (equipment) => ({
+      title: equipment.tag,
+      description: equipment.brand || getPhrase('N/A'),
+    })),
+    [],
   );
 
   return (
-    <View style={style}>
-      <Input
-        size="large"
-        placeholder={getPhrase('Search TAG')}
-        value={tag}
-        onChangeText={findTags}
-      />
-      <List
-        data={equipment}
-        ItemSeparatorComponent={Divider}
-        renderItem={renderEquipmentItem}
-      />
-    </View>
+    <SearchList
+      style={style}
+      label={getPhrase('Search TAG')}
+      onClickItem={onEquipmentSelected}
+      minCharacters={3}
+    />
   );
 }

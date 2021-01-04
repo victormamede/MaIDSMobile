@@ -68,7 +68,8 @@ export default function createSearchList<ItemType>(
           title={itemDescriptor.title}
           accessoryLeft={itemDescriptor.avatar}
           description={itemDescriptor.description}
-          onPress={() => onClickItem && onClickItem(item)}
+          onPress={onClickItem && (() => onClickItem(item))}
+          disabled={onClickItem == null}
         />
       );
     };
