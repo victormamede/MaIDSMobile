@@ -3,7 +3,7 @@ import { StackScreenProps } from '@react-navigation/stack';
 import UserScreen from '../../../components/user/user_screen';
 import Layout from '../../../components/layout';
 import { useLang } from '../../../util/contexts/lang_context';
-import { UserStackParams } from '../user';
+import { UserStackParams } from './navigator';
 
 export default function User({
   navigation,

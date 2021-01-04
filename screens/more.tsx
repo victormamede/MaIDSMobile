@@ -5,7 +5,7 @@ import {
 } from '@react-navigation/stack';
 import { WithUserStackParams } from './navigator';
 import MoreDefault from './more/default';
-import MoreUser from './more/user';
+import MoreUser from './more/users/navigator';
 
 const Stack = createStackNavigator();
 

@@ -8,7 +8,7 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { useLang } from '../../../util/contexts/lang_context';
 import Layout from '../../../components/layout';
 import { useFocusEffect } from '@react-navigation/native';
-import { UserStackParams } from '../user';
+import { UserStackParams } from './navigator';
 
 export default function UserList({
   navigation,
