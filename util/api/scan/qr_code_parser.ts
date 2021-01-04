@@ -1,6 +1,6 @@
 import { BarCodeReadEvent, Point } from 'react-native-camera';
 
-const CODE_PREFIX = process.env.CODE_PREFIX || 'maidsappcode';
+const CODE_PREFIX = process.env.QR_CODE_PREFIX || 'maidsappcode';
 
 // QRCodes data should follow the template: {code_prefix}:{id}:{date_created}
 export default class QRCodeParser {
