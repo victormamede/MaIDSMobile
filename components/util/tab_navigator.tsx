@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Tab, TabView, TabViewProps } from '@ui-kitten/components';
 import { StyleSheet } from 'react-native';
 
-const Navigator = (props: TabViewProps) => {
+function Navigator(props: TabViewProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   return (
@@ -14,7 +14,7 @@ const Navigator = (props: TabViewProps) => {
       {props.children}
     </TabView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -22,6 +22,6 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function createTabNavigator() {
-  return { Tab, Navigator };
-}
+Navigator.Tab = Tab;
+
+export default Navigator;
