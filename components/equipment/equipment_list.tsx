@@ -18,10 +18,9 @@ export default function EquipmentList({ onPress }: Props) {
   const getEquipment = useCallback(
     async (keyword: string) => {
       const fetcher = new EquipmentFetcher(currentUser.fetcher);
-      // TODO: filtering on the backend
-      const data = await fetcher.getList();
+      const data = await fetcher.getList({ tag: keyword });
 
-      return data.filter((item) => item.tag.includes(keyword));
+      return data;
     },
     [currentUser],
   );
