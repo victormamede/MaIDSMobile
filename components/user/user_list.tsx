@@ -1,27 +1,33 @@
-import React, { useCallback } from 'react';
+import React, {
+  forwardRef,
+  ForwardRefRenderFunction,
+  useCallback,
+} from 'react';
 import { ImageProps, StyleSheet } from 'react-native';
 import { Icon } from '@ui-kitten/components';
 import { useUser } from '../../util/contexts/user_context';
 import UserFetcher, { UserData } from '../../util/api/user/user';
-import createSearchList from '../util/search_list';
+import createSearchList, { SearchListRef } from '../util/search_list';
 import { useLang } from '../../util/contexts/lang_context';
 
 type Props = {
   onPress?: (userId: number) => void;
 };
+export type UserListRef = SearchListRef;
 
-export default function UserList({ onPress }: Props) {
+const UserListRender: ForwardRefRenderFunction<UserListRef, Props> = (
+  { onPress },
+  ref,
+) => {
   const currentUser = useUser();
   const { getPhrase } = useLang();
 
   const getUsers = useCallback(
     async (keyword: string) => {
       const fetcher = new UserFetcher(currentUser.fetcher);
-      // TODO: filtering on the backend
-      console.log('called');
-      const data = await fetcher.getList();
+      const data = await fetcher.getList({ username: keyword });
 
-      return data.filter((item) => item.username.includes(keyword));
+      return data;
     },
     [currentUser],
   );
@@ -37,12 +43,13 @@ export default function UserList({ onPress }: Props) {
 
   return (
     <SearchList
+      ref={ref}
       style={styles.container}
       onClickItem={(item) => onPress && onPress(item.id)}
       label={getPhrase('Find user')}
     />
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -53,3 +60,6 @@ const styles = StyleSheet.create({
 const Avatar = (props?: Partial<ImageProps>) => (
   <Icon name="person-outline" {...props} />
 );
+
+const UserList = forwardRef(UserListRender);
+export default UserList;

@@ -1,11 +1,11 @@
-import React, { useEffect, useReducer, useState } from 'react';
+import React, { useEffect, useMemo, useReducer, useState } from 'react';
 import UserFetcher, { UserData } from '../../util/api/user/user';
 import { useUser } from '../../util/contexts/user_context';
 import UserForm from './user_form';
 import { differentEntries } from '../../util/helper/objects';
 import LoadingScreen from '../util/loading_screen';
-import ConfirmationScreen from './util/confirmation_screen';
-import NotFoundScreen from './not_found_screen';
+import ConfirmationScreen from '../util/confirmation_screen';
+import NotFoundScreen from '../util/not_found_screen';
 import { StyleSheet } from 'react-native';
 
 type Props = {
@@ -77,6 +77,10 @@ export default function UserScreen({ id, onSuccess }: Props) {
   const [confirmDelete, confirmDeleteHandler] = useState(false);
   const currentUser = useUser();
 
+  const fetcher = useMemo(() => new UserFetcher(currentUser.fetcher), [
+    currentUser.fetcher,
+  ]);
+
   useEffect(() => {
     const getUserData = async () => {
       if (id === 0) {
@@ -85,7 +89,6 @@ export default function UserScreen({ id, onSuccess }: Props) {
       }
 
       try {
-        const fetcher = new UserFetcher(currentUser.fetcher);
         const data = await fetcher.getUserData(id);
 
         dispatch({ type: 'setUser', user: data });
@@ -95,7 +98,7 @@ export default function UserScreen({ id, onSuccess }: Props) {
     };
 
     getUserData();
-  }, [currentUser.fetcher, id]);
+  }, [fetcher, id]);
 
   if (!started) {
     return <LoadingScreen />;
@@ -104,7 +107,6 @@ export default function UserScreen({ id, onSuccess }: Props) {
     return <NotFoundScreen />;
   }
 
-  const fetcher = new UserFetcher(currentUser.fetcher);
   async function tryAndExec<T>(func: () => T | Promise<T>) {
     dispatch({ type: 'setLoading', value: true });
 

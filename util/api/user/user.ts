@@ -1,3 +1,4 @@
+import { objectToUrlEncoded } from '../../helper/objects';
 import ApiFetcher, { ErrorMessage } from '../api_fetcher';
 import { Role } from '../auth/roles';
 
@@ -22,8 +23,13 @@ type Body = {
 export default class UserFetcher {
   constructor(private fetcher: ApiFetcher) {}
 
-  public async getList(): Promise<UserData[]> {
-    const { data } = await this.fetcher.get<Body[]>('/user');
+  public async getList(filters?: Partial<UserData>): Promise<UserData[]> {
+    let filterString = '';
+    if (filters != null) {
+      filterString = objectToUrlEncoded(filters);
+    }
+
+    const { data } = await this.fetcher.get<Body[]>('/user' + filterString);
 
     return (data as Body[])
       .map(bodyToUserData)

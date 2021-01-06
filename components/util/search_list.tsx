@@ -1,4 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {
+  useCallback,
+  useState,
+  forwardRef,
+  useImperativeHandle,
+} from 'react';
 import { Divider, Input, List, ListItem } from '@ui-kitten/components';
 import {
   ImageProps,
@@ -7,6 +12,10 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
+
+export type SearchListRef = {
+  refresh?: () => void;
+};
 
 export default function createSearchList<ItemType>(
   fetchFunc: (keyword: string) => Promise<ItemType[]>,
@@ -25,12 +34,10 @@ export default function createSearchList<ItemType>(
     label: string;
   };
 
-  const SearchList: React.FunctionComponent<Props> = ({
-    minCharacters,
-    onClickItem,
-    style,
-    label,
-  }: Props) => {
+  const SearchList: React.ForwardRefRenderFunction<SearchListRef, Props> = (
+    { minCharacters, onClickItem, style, label },
+    ref,
+  ) => {
     const [keyword, keywordHandler] = useState('');
     const [loading, loadHandler] = useState(false);
     const [items, itemHandler] = useState<ItemType[]>([]);
@@ -45,7 +52,12 @@ export default function createSearchList<ItemType>(
             return;
           }
           loadHandler(true);
-          const data = await fetchFunc(value);
+          let data: ItemType[] = [];
+          try {
+            data = await fetchFunc(value);
+          } catch (e) {
+            // Maybe I should put something in here...
+          }
           loadHandler(false);
 
           itemHandler(data);
@@ -55,9 +67,11 @@ export default function createSearchList<ItemType>(
       [minCharacters],
     );
 
-    useEffect(() => {
-      findItems('');
-    }, [findItems]);
+    const refresh = () => findItems(keyword);
+
+    useImperativeHandle(ref, () => ({
+      refresh: refresh,
+    }));
 
     const renderEquipmentItem: ListRenderItem<ItemType> = ({ item, index }) => {
       const itemDescriptor = translateFunc(item);
@@ -87,14 +101,14 @@ export default function createSearchList<ItemType>(
           data={items}
           ItemSeparatorComponent={Divider}
           renderItem={renderEquipmentItem}
-          onRefresh={() => findItems(keyword)}
+          onRefresh={refresh}
           refreshing={loading}
         />
       </View>
     );
   };
 
-  return SearchList;
+  return forwardRef(SearchList);
 }
 
 const styles = StyleSheet.create({

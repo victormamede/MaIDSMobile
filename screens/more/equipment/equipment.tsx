@@ -14,7 +14,7 @@ export default function Equipment({
 
   return (
     <Layout title={getPhrase('Equipment')} goBack={navigation.goBack}>
-      <EquipmentScreen id={id} />
+      <EquipmentScreen id={id} onSuccess={navigation.pop} />
     </Layout>
   );
 }

@@ -1,4 +1,4 @@
-import ApiFetcher from '../api_fetcher';
+import ApiFetcher, { ErrorMessage } from '../api_fetcher';
 import { objectToUrlEncoded } from '../../helper/objects';
 
 export type EquipmentData = {
@@ -40,15 +40,61 @@ export default class EquipmentFetcher {
   public async getEquipmentData(id: number): Promise<EquipmentData> {
     const { status, data } = await this.fetcher.get<Body>(`/equipment/${id}`);
 
-    if (status === 200) {
-      return bodyToEquipmentData(data as Body);
-    } else {
-      throw new Error('Equipment not found');
+    if (status !== 200) {
+      throw new Error('Equipment ID not valid');
     }
+
+    return bodyToEquipmentData(data as Body);
+  }
+
+  public async updateEquipment(id: number, body: Partial<EquipmentData>) {
+    const { data, status } = await this.fetcher.put<Body>(
+      `/equipment/${id}`,
+      equipmentDataToBody(body),
+    );
+
+    if (status !== 200) {
+      const errorMessage = data as ErrorMessage;
+
+      throw new Error(errorMessage.message);
+    }
+
+    return bodyToEquipmentData(data as Body);
+  }
+
+  public async createEquipment(body: EquipmentData) {
+    const { data, status } = await this.fetcher.post<Body>(
+      '/equipment',
+      equipmentDataToBody(body),
+    );
+
+    if (status !== 201) {
+      const errorMessage = data as ErrorMessage;
+
+      throw new Error(errorMessage.message);
+    }
+
+    return bodyToEquipmentData(data as Body);
+  }
+
+  public async deleteEquipment(body: EquipmentData) {
+    const { status } = await this.fetcher.delete(`/equipment/${body.id}`);
+
+    return status === 200;
   }
 }
 
-const bodyToEquipmentData = (data: Body) => ({
+const bodyToEquipmentData: (body: Body) => EquipmentData = (data: Body) => ({
+  id: data.id,
+  tag: data.tag,
+  brand: data.brand,
+  model: data.model,
+  series: data.series,
+});
+
+const equipmentDataToBody: (
+  equipmentData: Partial<EquipmentData>,
+) => Partial<Body> = (data: Partial<EquipmentData>) => ({
   id: data.id,
   tag: data.tag,
   brand: data.brand,
