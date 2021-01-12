@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { useLang } from '../../util/contexts/lang_context';
 import {
   Button,
@@ -11,6 +11,7 @@ import {
 import useControlledInput from '../util/form/controlled_input';
 import { EquipmentData } from '../../util/api/equipment/equipment';
 import { ImageProps, ScrollView, View, ViewStyle } from 'react-native';
+import TypeList from './type/type_list';
 
 type Props = {
   data?: EquipmentData;
@@ -40,6 +41,23 @@ export default function EquipmentForm({
 
   const Input = useControlledInput(control);
 
+  const typeSelector = (
+    <Controller
+      control={control}
+      render={({ onChange, value, onBlur }) => (
+        <TypeList
+          onChange={onChange}
+          onBlur={onBlur}
+          value={value}
+          error={errors.type}
+        />
+      )}
+      name="type"
+      rules={{ min: 0 }}
+      defaultValue={data?.type || -1}
+    />
+  );
+
   return (
     <ScrollView>
       <View style={style}>
@@ -61,11 +79,11 @@ export default function EquipmentForm({
             onPress={onDelete}
           />
         </View>
+        {typeSelector}
         <Input
           label={getPhrase('Brand')}
           name="brand"
           defaultValue={data?.brand || ''}
-          rules={{ required: true }}
           error={errors.brand}
           props={{ disabled: loading }}
         />
@@ -73,7 +91,6 @@ export default function EquipmentForm({
           label={getPhrase('Model')}
           name="model"
           defaultValue={data?.model || ''}
-          rules={{ required: true }}
           error={errors.model}
           props={{ disabled: loading }}
         />
@@ -81,7 +98,6 @@ export default function EquipmentForm({
           label={getPhrase('Serial number')}
           name="series"
           defaultValue={data?.series || ''}
-          rules={{ required: true }}
           error={errors.series}
           props={{ disabled: loading }}
         />

@@ -4,20 +4,26 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from 'react';
-import { Divider, Input, List, ListItem } from '@ui-kitten/components';
+import { Divider, Icon, Input, List, ListItem } from '@ui-kitten/components';
 import {
   ImageProps,
   ListRenderItem,
   StyleSheet,
   View,
+  ViewProps,
   ViewStyle,
 } from 'react-native';
+import { RenderProp } from '@ui-kitten/components/devsupport';
 
 export type SearchListRef = {
   refresh?: () => void;
 };
 
-export default function createSearchList<ItemType>(
+type BaseType = {
+  id: number;
+};
+
+export default function createSearchList<ItemType extends BaseType>(
   fetchFunc: (keyword: string) => Promise<ItemType[]>,
   translateFunc: (
     item: ItemType,
@@ -32,10 +38,11 @@ export default function createSearchList<ItemType>(
     minCharacters?: number;
     style?: ViewStyle;
     label: string;
+    selected?: ItemType;
   };
 
   const SearchList: React.ForwardRefRenderFunction<SearchListRef, Props> = (
-    { minCharacters, onClickItem, style, label },
+    { minCharacters, onClickItem, style, label, selected },
     ref,
   ) => {
     const [keyword, keywordHandler] = useState('');
@@ -84,6 +91,7 @@ export default function createSearchList<ItemType>(
           description={itemDescriptor.description}
           onPress={onClickItem && (() => onClickItem(item))}
           disabled={onClickItem == null}
+          accessoryRight={selected?.id === item.id ? Checked : undefined}
         />
       );
     };
@@ -116,3 +124,7 @@ const styles = StyleSheet.create({
     margin: 8,
   },
 });
+
+const Checked: RenderProp<ViewProps> = (props) => (
+  <Icon name="checkmark-square-outline" {...props} />
+);

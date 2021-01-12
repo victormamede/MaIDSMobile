@@ -1,17 +1,29 @@
 import ApiFetcher, { ErrorMessage } from '../api_fetcher';
+import { EquipmentTypeData } from './equipment_type';
 import { objectToUrlEncoded } from '../../helper/objects';
 
 export type EquipmentData = {
   id: number;
   tag: string;
+  type: EquipmentTypeData;
   brand: string | null;
   model: string | null;
   series: string | null;
 };
 
-export type Body = {
+export type EquipmentGetBody = {
   id: number;
   tag: string;
+  type: EquipmentTypeData;
+  brand: string | null;
+  model: string | null;
+  series: string | null;
+};
+
+export type EquipmentPostBody = {
+  id: number;
+  tag: string;
+  type_id: number;
   brand: string | null;
   model: string | null;
   series: string | null;
@@ -28,29 +40,31 @@ export default class EquipmentFetcher {
       filterString = objectToUrlEncoded(filters);
     }
 
-    const { data } = await this.fetcher.get<Body[]>(
+    const { data } = await this.fetcher.get<EquipmentGetBody[]>(
       '/equipment' + filterString,
     );
 
-    return (data as Body[])
+    return (data as EquipmentGetBody[])
       .map(bodyToEquipmentData)
       .sort((el1, el2) => (el1.tag > el2.tag ? 1 : -1));
   }
 
   public async getEquipmentData(id: number): Promise<EquipmentData> {
-    const { status, data } = await this.fetcher.get<Body>(`/equipment/${id}`);
+    const { status, data } = await this.fetcher.get<EquipmentGetBody>(
+      `/equipment/${id}`,
+    );
 
     if (status !== 200) {
       throw new Error('Equipment ID not valid');
     }
 
-    return bodyToEquipmentData(data as Body);
+    return bodyToEquipmentData(data as EquipmentGetBody);
   }
 
   public async updateEquipment(id: number, body: Partial<EquipmentData>) {
-    const { data, status } = await this.fetcher.put<Body>(
+    const { data, status } = await this.fetcher.put<EquipmentGetBody>(
       `/equipment/${id}`,
-      equipmentDataToBody(body),
+      equipmentDataToPostBody(body),
     );
 
     if (status !== 200) {
@@ -59,13 +73,13 @@ export default class EquipmentFetcher {
       throw new Error(errorMessage.message);
     }
 
-    return bodyToEquipmentData(data as Body);
+    return bodyToEquipmentData(data as EquipmentGetBody);
   }
 
   public async createEquipment(body: EquipmentData) {
-    const { data, status } = await this.fetcher.post<Body>(
+    const { data, status } = await this.fetcher.post<EquipmentGetBody>(
       '/equipment',
-      equipmentDataToBody(body),
+      equipmentDataToPostBody(body),
     );
 
     if (status !== 201) {
@@ -74,7 +88,7 @@ export default class EquipmentFetcher {
       throw new Error(errorMessage.message);
     }
 
-    return bodyToEquipmentData(data as Body);
+    return bodyToEquipmentData(data as EquipmentGetBody);
   }
 
   public async deleteEquipment(body: EquipmentData) {
@@ -84,19 +98,23 @@ export default class EquipmentFetcher {
   }
 }
 
-const bodyToEquipmentData: (body: Body) => EquipmentData = (data: Body) => ({
+const bodyToEquipmentData: (body: EquipmentGetBody) => EquipmentData = (
+  data: EquipmentGetBody,
+) => ({
   id: data.id,
   tag: data.tag,
+  type: data.type,
   brand: data.brand,
   model: data.model,
   series: data.series,
 });
 
-const equipmentDataToBody: (
+const equipmentDataToPostBody: (
   equipmentData: Partial<EquipmentData>,
-) => Partial<Body> = (data: Partial<EquipmentData>) => ({
+) => Partial<EquipmentPostBody> = (data: Partial<EquipmentData>) => ({
   id: data.id,
   tag: data.tag,
+  type_id: data.type?.id,
   brand: data.brand,
   model: data.model,
   series: data.series,

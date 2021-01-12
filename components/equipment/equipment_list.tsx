@@ -12,7 +12,7 @@ import EquipmentFetcher, {
 } from '../../util/api/equipment/equipment';
 
 type Props = {
-  onPress?: (userId: number) => void;
+  onPress?: (equipmentId: number) => void;
 };
 export type EquipmentListRef = SearchListRef;
 
