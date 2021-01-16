@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Modal, Card, Text } from '@ui-kitten/components';
-import { useLang } from '../../../util/contexts/lang_context';
+import { useLang } from '../../util/contexts/lang_context';
 import { StyleSheet, ViewProps } from 'react-native';
 import { RenderProp } from '@ui-kitten/components/devsupport';
 

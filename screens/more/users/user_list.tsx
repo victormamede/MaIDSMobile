@@ -1,29 +1,29 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
-import UserList, { UserListRefProps } from '../../components/user/user_list';
+import UserListComponent, {
+  UserListRef,
+} from '../../../components/user/user_list';
 import { Button } from '@ui-kitten/components';
 import { StackScreenProps } from '@react-navigation/stack';
-import { MoreStackParams } from '../more';
-import { useLang } from '../../util/contexts/lang_context';
-import Layout from '../../components/layout';
+import { useLang } from '../../../util/contexts/lang_context';
+import Layout from '../../../components/layout';
+import { UserStackParams } from './navigator';
 import { useFocusEffect } from '@react-navigation/native';
 
-export default function MoreUserList({
+export default function UserList({
   navigation,
-}: StackScreenProps<MoreStackParams, 'Users'>) {
+}: StackScreenProps<UserStackParams, 'Users'>) {
   const { getPhrase } = useLang();
-  const listRef = useRef<UserListRefProps>(null);
+  const listRef = useRef<UserListRef>(null);
 
-  useFocusEffect(
-    useCallback(() => {
-      listRef.current?.refresh();
-    }, [listRef]),
-  );
+  useFocusEffect(() => {
+    listRef.current?.refresh && listRef.current?.refresh();
+  });
 
   return (
     <Layout title={getPhrase('User List')} goBack={navigation.goBack}>
       <View style={styles.container}>
-        <UserList
+        <UserListComponent
           ref={listRef}
           onPress={(id) => navigation.push('User', { id })}
         />

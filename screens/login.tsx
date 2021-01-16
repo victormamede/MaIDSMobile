@@ -5,16 +5,18 @@ import { useUser } from '../util/contexts/user_context';
 import { NoUserStackParams } from './navigator';
 import { ImageProps, StyleSheet, View } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
-import { Button, Icon } from '@ui-kitten/components';
+import { Button, Icon, useTheme } from '@ui-kitten/components';
 import { useLang } from '../util/contexts/lang_context';
 import { UserData } from '../util/api/user/user';
 import Layout from '../components/layout';
+import Logo from '../resources/logo.svg';
 
 export default function Login({
   navigation,
 }: StackScreenProps<NoUserStackParams, 'Login'>) {
   const userContext = useUser();
   const { getPhrase } = useLang();
+  const theme = useTheme();
 
   const onLogin = async (
     token: string,
@@ -26,13 +28,8 @@ export default function Login({
 
   return (
     <Layout>
-      <View style={styles.container}>
-        <LoginScreen
-          userUpdated={(token) => onLogin(token, userContext.logIn)}
-          updatePassword={(token) =>
-            navigation.navigate('UpdatePassword', { token: token })
-          }
-        />
+      <View style={styles.backContainer}>
+        <Logo width={150} height={150} color={theme['color-primary-default']} />
       </View>
       <View style={styles.footer}>
         <Button
@@ -41,6 +38,14 @@ export default function Login({
           appearance="ghost">
           {getPhrase('Settings')}
         </Button>
+      </View>
+      <View style={styles.frontContainer}>
+        <LoginScreen
+          userUpdated={(token) => onLogin(token, userContext.logIn)}
+          updatePassword={(token) =>
+            navigation.navigate('UpdatePassword', { token: token })
+          }
+        />
       </View>
     </Layout>
   );
@@ -51,13 +56,24 @@ const CogIcon = (props?: Partial<ImageProps>) => (
 );
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  backContainer: {
+    justifyContent: 'flex-start',
+    alignItems: 'center',
     padding: 30,
+    flex: 1,
+  },
+  frontContainer: {
+    flex: 1,
+    paddingHorizontal: 30,
+    position: 'absolute',
     justifyContent: 'center',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   footer: {
     padding: 10,
-    alignSelf: 'flex-end',
+    alignItems: 'flex-end',
   },
 });

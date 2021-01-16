@@ -1,13 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { UserProvider, UserContextProps } from '../util/contexts/user_context';
 import { createStackNavigator } from '@react-navigation/stack';
+
+import ApiFetcher from '../util/api/api_fetcher';
+import { UserData } from '../util/api/user/user';
+
+// Routes
 import Login from './login';
 import Settings from './settings';
 import Scan from './scan';
 import More from './more';
-import ApiFetcher from '../util/api/api_fetcher';
+import Equipment from './equipment';
 import UpdatePassword from './update_password';
-import { UserData } from '../util/api/user/user';
 
 const Stack = createStackNavigator();
 
@@ -28,7 +32,7 @@ export default function Navigator() {
   );
 
   useEffect(() => {
-    userValues.fetcher.setOnExpire(() => userHandler(null));
+    userValues.fetcher.setOnLossConnection(() => userHandler(null));
   }, [userValues]);
 
   return (
@@ -43,6 +47,7 @@ export default function Navigator() {
         ) : (
           <>
             <Stack.Screen name="Scan" component={Scan} />
+            <Stack.Screen name="Equipment" component={Equipment} />
             <Stack.Screen name="More" component={More} />
           </>
         )}
@@ -54,6 +59,7 @@ export default function Navigator() {
 export type WithUserStackParams = {
   Scan: undefined;
   More: undefined;
+  Equipment: { id: number };
 };
 
 export type NoUserStackParams = {

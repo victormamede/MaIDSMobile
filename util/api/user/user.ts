@@ -1,3 +1,4 @@
+import { objectToUrlEncoded } from '../../helper/objects';
 import ApiFetcher, { ErrorMessage } from '../api_fetcher';
 import { Role } from '../auth/roles';
 
@@ -10,11 +11,25 @@ export type UserData = {
   registrationNumber: number;
 };
 
+type Body = {
+  id: number;
+  username: string;
+  real_name: string;
+  registration_number: number;
+  roles: Role[];
+  email: string;
+};
+
 export default class UserFetcher {
   constructor(private fetcher: ApiFetcher) {}
 
-  public async getList(): Promise<UserData[]> {
-    const { data } = await this.fetcher.get<Body[]>('/user');
+  public async getList(filters?: Partial<UserData>): Promise<UserData[]> {
+    let filterString = '';
+    if (filters != null) {
+      filterString = objectToUrlEncoded(filters);
+    }
+
+    const { data } = await this.fetcher.get<Body[]>('/user' + filterString);
 
     return (data as Body[])
       .map(bodyToUserData)
@@ -22,7 +37,11 @@ export default class UserFetcher {
   }
 
   public async getUserData(id: number): Promise<UserData> {
-    const { data } = await this.fetcher.get<Body>(`/user/${id}`);
+    const { status, data } = await this.fetcher.get<Body>(`/user/${id}`);
+
+    if (status !== 200) {
+      throw new Error('User ID not valid');
+    }
 
     return bodyToUserData(data as Body);
   }
@@ -83,12 +102,3 @@ const userDataToBody: (userData: Partial<UserData>) => Partial<Body> = (
   roles: userData.roles && [...userData.roles, 'NONE'],
   email: userData.email,
 });
-
-type Body = {
-  id: number;
-  username: string;
-  real_name: string;
-  registration_number: number;
-  roles: Role[];
-  email: string;
-};

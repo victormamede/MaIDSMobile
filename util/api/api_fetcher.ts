@@ -16,7 +16,7 @@ console.log(`API address: ${Config.API_URL}`);
 
 export default class ApiFetcher {
   private headers: { [key: string]: string };
-  private onExpire?: () => void;
+  private onLossConnection?: () => void;
 
   constructor(public readonly userToken?: string) {
     this.headers = {
@@ -28,8 +28,8 @@ export default class ApiFetcher {
     }
   }
 
-  public setOnExpire(func: () => void) {
-    this.onExpire = func;
+  public setOnLossConnection(func: () => void) {
+    this.onLossConnection = func;
   }
 
   public async get<T>(
@@ -88,24 +88,29 @@ export default class ApiFetcher {
     fetchTimeout?: number,
     body?: object,
   ) {
-    const promise = fetch(`${Config.API_URL}/api${url}`, {
-      method: method,
-      headers: this.headers,
-      body: body && JSON.stringify(body),
-    });
+    try {
+      const promise = fetch(`${Config.API_URL}/api${url}`, {
+        method: method,
+        headers: this.headers,
+        body: body && JSON.stringify(body),
+      });
 
-    const response = await timeout(fetchTimeout || DEFAULT_TIMEOUT, promise);
-    const json = await response.json();
+      const response = await timeout(fetchTimeout || DEFAULT_TIMEOUT, promise);
+      const json = await response.json();
 
-    if (
-      response.status === 401 &&
-      json.message &&
-      json.message === 'Expired token'
-    ) {
-      this.onExpire && this.onExpire();
-      throw new Error('Expired session');
+      if (
+        response.status === 401 &&
+        json.message &&
+        json.message === 'Expired token'
+      ) {
+        this.onLossConnection && this.onLossConnection();
+        throw new Error('Expired session');
+      }
+
+      return [response, json];
+    } catch (e) {
+      this.onLossConnection && this.onLossConnection();
+      throw e;
     }
-
-    return [response, json];
   }
 }
