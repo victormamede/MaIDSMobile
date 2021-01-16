@@ -36,6 +36,7 @@ export default function EquipmentForm({
     errors,
     reset,
     setValue,
+    getValues,
   } = useForm<EquipmentData>();
   const styles = useStyleSheet(themedStyles);
 
@@ -103,7 +104,14 @@ export default function EquipmentForm({
         <Button
           style={styles.button}
           disabled={loading}
-          onPress={onSubmit && handleSubmit(onSubmit)}>
+          onPress={() => {
+            const tagValue = getValues('tag');
+            if (tagValue != null) {
+              setValue('tag', tagValue.toUpperCase() || '');
+            }
+
+            onSubmit && handleSubmit(onSubmit)();
+          }}>
           {getPhrase('Submit')}
         </Button>
       </View>

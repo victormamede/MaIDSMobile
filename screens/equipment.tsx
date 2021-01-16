@@ -3,7 +3,7 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { WithUserStackParams } from './navigator';
 import { useLang } from '../util/contexts/lang_context';
 import Layout from '../components/layout';
-import EquipmentScreen from '../components/equipment/equipment_screen';
+import EquipmentScreen from '../components/equipment_view/equipment_screen';
 import { StyleSheet, Text, View } from 'react-native';
 import Navigator from '../components/util/tab_navigator';
 
