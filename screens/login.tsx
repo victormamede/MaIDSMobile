@@ -10,7 +10,6 @@ import { useLang } from '../util/contexts/lang_context';
 import { UserData } from '../util/api/user/user';
 import Layout from '../components/layout';
 import Logo from '../resources/logo.svg';
-import useKeyboard from '../util/helper/keyboard';
 
 export default function Login({
   navigation,
@@ -18,7 +17,6 @@ export default function Login({
   const userContext = useUser();
   const { getPhrase } = useLang();
   const theme = useTheme();
-  const keyboardShown = useKeyboard();
 
   const onLogin = async (
     token: string,
@@ -27,10 +25,6 @@ export default function Login({
     const myUser = await getUserData(token);
     myUser && logInFunc(myUser, token);
   };
-
-  const fadeBackground = StyleSheet.flatten({
-    backgroundColor: keyboardShown ? 'rgba(0,0,0,0.5)' : undefined,
-  });
 
   return (
     <Layout>
@@ -45,7 +39,6 @@ export default function Login({
           {getPhrase('Settings')}
         </Button>
       </View>
-      <View style={[styles.overlay, fadeBackground]} />
       <View style={styles.frontContainer}>
         <LoginScreen
           userUpdated={(token) => onLogin(token, userContext.logIn)}
@@ -68,14 +61,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 30,
     flex: 1,
-  },
-  overlay: {
-    flex: 1,
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
   },
   frontContainer: {
     flex: 1,
