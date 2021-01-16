@@ -45,6 +45,8 @@ export default function LoginScreen({
         } else {
           errorMessageHandler('User not found');
         }
+      } else if (e.message === 'Network request failed') {
+        errorMessageHandler('Could not connect to the server');
       } else {
         errorMessageHandler('Something went wrong');
       }

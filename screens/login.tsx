@@ -17,8 +17,8 @@ export default function Login({
 }: StackScreenProps<NoUserStackParams, 'Login'>) {
   const userContext = useUser();
   const { getPhrase } = useLang();
-  const isKeyboardShowing = useKeyboard();
   const theme = useTheme();
+  const keyboardShown = useKeyboard();
 
   const onLogin = async (
     token: string,
@@ -28,24 +28,14 @@ export default function Login({
     myUser && logInFunc(myUser, token);
   };
 
-  const logoSize = isKeyboardShowing ? 75 : 150;
+  const fadeBackground = StyleSheet.flatten({
+    backgroundColor: keyboardShown ? 'rgba(0,0,0,0.5)' : undefined,
+  });
 
   return (
     <Layout>
-      <View style={styles.topContainer}>
-        <Logo
-          width={logoSize}
-          height={logoSize}
-          color={theme['color-primary-default']}
-        />
-      </View>
-      <View style={styles.bottomContainer}>
-        <LoginScreen
-          userUpdated={(token) => onLogin(token, userContext.logIn)}
-          updatePassword={(token) =>
-            navigation.navigate('UpdatePassword', { token: token })
-          }
-        />
+      <View style={styles.backContainer}>
+        <Logo width={150} height={150} color={theme['color-primary-default']} />
       </View>
       <View style={styles.footer}>
         <Button
@@ -54,6 +44,15 @@ export default function Login({
           appearance="ghost">
           {getPhrase('Settings')}
         </Button>
+      </View>
+      <View style={[styles.overlay, fadeBackground]} />
+      <View style={styles.frontContainer}>
+        <LoginScreen
+          userUpdated={(token) => onLogin(token, userContext.logIn)}
+          updatePassword={(token) =>
+            navigation.navigate('UpdatePassword', { token: token })
+          }
+        />
       </View>
     </Layout>
   );
@@ -64,14 +63,29 @@ const CogIcon = (props?: Partial<ImageProps>) => (
 );
 
 const styles = StyleSheet.create({
-  topContainer: {
-    justifyContent: 'center',
+  backContainer: {
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    padding: 20,
+    padding: 30,
+    flex: 1,
   },
-  bottomContainer: {
+  overlay: {
+    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  frontContainer: {
     flex: 1,
     paddingHorizontal: 30,
+    position: 'absolute',
+    justifyContent: 'center',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   footer: {
     padding: 10,

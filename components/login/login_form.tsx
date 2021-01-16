@@ -107,7 +107,6 @@ export default function LoginForm({
 
       <Button
         style={styles.button}
-        status="danger"
         accessoryLeft={loading ? spinner : loginIcon}
         onPress={handleSubmit(onSubmit)}
         disabled={loading}>
@@ -138,7 +137,7 @@ const themedStyles = StyleService.create({
     color: 'color-danger-default',
   },
   remember: {
-    margin: 10,
+    marginVertical: 10,
     alignSelf: 'flex-end',
   },
 });

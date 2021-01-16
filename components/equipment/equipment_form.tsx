@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useLang } from '../../util/contexts/lang_context';
 import {
   Button,
@@ -11,7 +11,7 @@ import {
 import useControlledInput from '../util/form/controlled_input';
 import { EquipmentData } from '../../util/api/equipment/equipment';
 import { ImageProps, ScrollView, View, ViewStyle } from 'react-native';
-import TypeList from './type/type_list';
+import TypeSelector from './type/type_selector';
 
 type Props = {
   data?: EquipmentData;
@@ -30,7 +30,13 @@ export default function EquipmentForm({
   loading,
   style,
 }: Props) {
-  const { control, handleSubmit, errors, reset } = useForm<EquipmentData>();
+  const {
+    control,
+    handleSubmit,
+    errors,
+    reset,
+    setValue,
+  } = useForm<EquipmentData>();
   const styles = useStyleSheet(themedStyles);
 
   useEffect(() => {
@@ -40,23 +46,6 @@ export default function EquipmentForm({
   const { getPhrase } = useLang();
 
   const Input = useControlledInput(control);
-
-  const typeSelector = (
-    <Controller
-      control={control}
-      render={({ onChange, value, onBlur }) => (
-        <TypeList
-          onChange={onChange}
-          onBlur={onBlur}
-          value={value}
-          error={errors.type}
-        />
-      )}
-      name="type"
-      rules={{ min: 0 }}
-      defaultValue={data?.type || -1}
-    />
-  );
 
   return (
     <ScrollView>
@@ -79,7 +68,12 @@ export default function EquipmentForm({
             onPress={onDelete}
           />
         </View>
-        {typeSelector}
+        <TypeSelector
+          control={control}
+          error={errors.type}
+          defaultValue={data?.type || null}
+          setValue={(value) => setValue('type', value)}
+        />
         <Input
           label={getPhrase('Brand')}
           name="brand"

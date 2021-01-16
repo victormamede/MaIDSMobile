@@ -42,5 +42,8 @@
   "Equipment List": "Lista de equipamentos",
   "User": "Usuário",
   "Find user": "Buscar usuário",
-  "Could not create user": "Não foi possível criar o usuário"
+  "Could not create user": "Não foi possível criar o usuário",
+  "New Type": "Novo Tipo",
+  "Equipment Type": "Tipo de equipamento",
+  "Remember me": "Lembrar-me"
 }
