@@ -41,6 +41,7 @@ export default function SearchBar({ onEquipmentSelected, style }: Props) {
       label={getPhrase('Search TAG')}
       onClickItem={onEquipmentSelected}
       minCharacters={3}
+      clearOnSelect
     />
   );
 }

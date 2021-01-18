@@ -39,10 +39,11 @@ export default function createSearchList<ItemType extends BaseType>(
     style?: ViewStyle;
     label: string;
     selected?: ItemType;
+    clearOnSelect?: boolean;
   };
 
   const SearchList: React.ForwardRefRenderFunction<SearchListRef, Props> = (
-    { minCharacters, onClickItem, style, label, selected },
+    { minCharacters, onClickItem, style, label, selected, clearOnSelect },
     ref,
   ) => {
     const [keyword, keywordHandler] = useState('');
@@ -89,7 +90,12 @@ export default function createSearchList<ItemType extends BaseType>(
           title={itemDescriptor.title}
           accessoryLeft={itemDescriptor.avatar}
           description={itemDescriptor.description}
-          onPress={onClickItem && (() => onClickItem(item))}
+          onPress={() => {
+            if (clearOnSelect) {
+              findItems('');
+            }
+            onClickItem && onClickItem(item);
+          }}
           disabled={onClickItem == null}
           accessoryRight={selected?.id === item.id ? Checked : undefined}
         />
