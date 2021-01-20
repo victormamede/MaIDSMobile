@@ -12,14 +12,18 @@ import Scan from './scan';
 import More from './more';
 import Equipment from './equipment';
 import UpdatePassword from './update_password';
+import ConnectionLoss from '../components/connection_loss';
+import { StyleSheet } from 'react-native';
 
 const Stack = createStackNavigator();
+type Login = {
+  user: UserData;
+  token: string;
+};
 
 export default function Navigator() {
-  const [user, userHandler] = useState<{
-    user: UserData;
-    token: string;
-  } | null>(null);
+  const [user, userHandler] = useState<Login | null>(null);
+  const [connectionLoss, connectionLossHandler] = useState(false);
 
   const userValues: UserContextProps = useMemo(
     () => ({
@@ -32,11 +36,17 @@ export default function Navigator() {
   );
 
   useEffect(() => {
-    userValues.fetcher.setOnLossConnection(() => userHandler(null));
+    userValues.fetcher.setOnLossConnection(() => connectionLossHandler(true));
   }, [userValues]);
 
   return (
     <UserProvider value={userValues}>
+      {connectionLoss && (
+        <ConnectionLoss
+          cardStyle={styles.modal}
+          onConnectionReestablish={() => connectionLossHandler(false)}
+        />
+      )}
       <Stack.Navigator headerMode="none">
         {user == null ? (
           <>
@@ -67,3 +77,9 @@ export type NoUserStackParams = {
   Settings: undefined;
   UpdatePassword: { token: string };
 };
+
+const styles = StyleSheet.create({
+  modal: {
+    margin: 32,
+  },
+});

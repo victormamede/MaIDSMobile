@@ -1,5 +1,5 @@
-import { Card } from '@ui-kitten/components';
 import React, { useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { Lang, useLang } from '../../util/contexts/lang_context';
 import SettingsForm, { Inputs } from './settings_form';
 
@@ -31,12 +31,18 @@ export default function SettingsScreen({ onUpdate }: Props) {
   };
 
   return (
-    <Card>
+    <View style={styles.container}>
       <SettingsForm
         currentValues={values}
         onSubmit={onSubmit}
         loading={loading}
       />
-    </Card>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+  },
+});

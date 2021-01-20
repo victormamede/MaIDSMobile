@@ -5,7 +5,7 @@ import { useUser } from '../util/contexts/user_context';
 import { NoUserStackParams } from './navigator';
 import { ImageProps, StyleSheet, View } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
-import { Button, Icon, useTheme } from '@ui-kitten/components';
+import { Button, Icon, Text, useTheme } from '@ui-kitten/components';
 import { useLang } from '../util/contexts/lang_context';
 import { UserData } from '../util/api/user/user';
 import Layout from '../components/layout';
@@ -46,6 +46,9 @@ export default function Login({
             navigation.navigate('UpdatePassword', { token: token })
           }
         />
+        <Text appearance="hint">{`${getPhrase(
+          'Created by',
+        )}: Victor Mamede`}</Text>
       </View>
     </Layout>
   );
@@ -74,6 +77,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     padding: 10,
-    alignItems: 'flex-end',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
   },
 });

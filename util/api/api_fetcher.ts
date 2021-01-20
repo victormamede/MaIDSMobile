@@ -82,6 +82,16 @@ export default class ApiFetcher {
     };
   }
 
+  public async testConnection() {
+    try {
+      await fetch(`${Config.API_URL}/`);
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   private async fetch(
     url: string,
     method: 'GET' | 'POST' | 'PUT' | 'DELETE',
